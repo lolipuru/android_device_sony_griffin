@@ -20,7 +20,7 @@ BUILD_BROKEN_INCORRECT_PARTITION_IMAGES := true
 
 BOARD_VENDOR := sony
 
-COMMON_PATH := device/sony/sm8150-common
+DEVICE_PATH := device/sony/griffin
 
 # A/B
 AB_OTA_UPDATER := true
@@ -51,6 +51,7 @@ TARGET_NO_BOOTLOADER := true
 # Kernel
 BOARD_BOOT_HEADER_VERSION := 2
 BOARD_KERNEL_CMDLINE := androidboot.hardware=qcom androidboot.memcg=1 lpm_levels.sleep_disabled=1 service_locator.enable=1 swiotlb=2048 loop.max_part=16 androidboot.usbcontroller=a600000.dwc3 buildid=KUMANO-1.2.0-211005-1847 panic_on_err=1
+BOARD_KERNEL_CMDLINE += buildproduct=griffin
 BOARD_KERNEL_BASE := 0x00000000
 BOARD_KERNEL_PAGESIZE := 4096
 BOARD_RAMDISK_OFFSET := 0x01000000
@@ -62,9 +63,20 @@ BOARD_KERNEL_SEPARATED_DTBO := true
 TARGET_KERNEL_ARCH := arm64
 BOARD_RAMDISK_USE_LZ4 := true
 
+TARGET_KERNEL_SOURCE := kernel/sony/sm8150
+TARGET_KERNEL_CONFIG := griffin_defconfig
+
+BOARD_MKBOOTIMG_ARGS += --base $(BOARD_KERNEL_BASE)
+BOARD_MKBOOTIMG_ARGS += --pagesize $(BOARD_KERNEL_PAGESIZE)
+BOARD_MKBOOTIMG_ARGS += --ramdisk_offset $(BOARD_RAMDISK_OFFSET)
+BOARD_MKBOOTIMG_ARGS += --tags_offset $(BOARD_KERNEL_TAGS_OFFSET)
+BOARD_MKBOOTIMG_ARGS += --kernel_offset $(BOARD_KERNEL_OFFSET)
+BOARD_MKBOOTIMG_ARGS += --dtb_offset $(BOARD_DTB_OFFSET)
+BOARD_MKBOOTIMG_ARGS += --header_version $(BOARD_BOOT_HEADER_VERSION)
+
 # Kernel modules
-BOARD_VENDOR_KERNEL_MODULES_BLOCKLIST_FILE := $(COMMON_PATH)/modules.blocklist
-BOARD_VENDOR_KERNEL_MODULES_LOAD := $(strip $(shell cat $(COMMON_PATH)/modules.load))
+BOARD_VENDOR_KERNEL_MODULES_BLOCKLIST_FILE := $(DEVICE_PATH)/modules.blocklist
+BOARD_VENDOR_KERNEL_MODULES_LOAD := $(strip $(shell cat $(DEVICE_PATH)/modules.load))
 
 # Use External DTC_OVERLAY_TEST
 TARGET_KERNEL_ADDITIONAL_FLAGS := \
@@ -116,6 +128,7 @@ TARGET_HEALTH_CHARGING_CONTROL_CHARGING_ENABLED := 0
 TARGET_HEALTH_CHARGING_CONTROL_CHARGING_DISABLED := 1
 
 # Display
+TARGET_SCREEN_DENSITY := 420
 TARGET_NO_RAW10_CUSTOM_FORMAT := true
 MAX_VIRTUAL_DISPLAY_DIMENSION := 4096
 NUM_FRAMEBUFFER_SURFACE_BUFFERS := 3
@@ -132,15 +145,15 @@ TARGET_USES_HWC2 := true
 TARGET_USES_ION := true
 
 # Filesystem
-TARGET_FS_CONFIG_GEN := $(COMMON_PATH)/config.fs
+TARGET_FS_CONFIG_GEN := $(DEVICE_PATH)/configs/config.fs
 
 # HIDL
 DEVICE_FRAMEWORK_COMPATIBILITY_MATRIX_FILE := \
-    $(COMMON_PATH)/framework_compatibility_matrix.xml \
+    $(DEVICE_PATH)/configs/vintf/framework_compatibility_matrix.xml \
     hardware/qcom-caf/common/vendor_framework_compatibility_matrix.xml \
     vendor/lineage/config/device_framework_matrix.xml
-DEVICE_MATRIX_FILE := $(COMMON_PATH)/compatibility_matrix.xml
-DEVICE_MANIFEST_FILE := $(COMMON_PATH)/manifest.xml
+DEVICE_MATRIX_FILE := $(DEVICE_PATH)/configs/vintf/compatibility_matrix.xml
+DEVICE_MANIFEST_FILE := $(DEVICE_PATH)/configs/vintf/manifest.xml
 
 # Metadata
 BOARD_USES_METADATA_PARTITION := true
@@ -163,19 +176,19 @@ TARGET_COPY_OUT_PRODUCT := system/product
 TARGET_COPY_OUT_VENDOR := vendor
 
 # Properties
-TARGET_ODM_PROP += $(COMMON_PATH)/odm.prop
-TARGET_PRODUCT_PROP += $(COMMON_PATH)/product.prop
-TARGET_SYSTEM_PROP += $(COMMON_PATH)/system.prop
-TARGET_VENDOR_PROP += $(COMMON_PATH)/vendor.prop
+TARGET_ODM_PROP += $(DEVICE_PATH)/configs/properties/odm.prop
+TARGET_PRODUCT_PROP += $(DEVICE_PATH)/configs/properties/product.prop
+TARGET_SYSTEM_PROP += $(DEVICE_PATH)/configs/properties/system.prop
+TARGET_VENDOR_PROP += $(DEVICE_PATH)/configs/properties/vendor.prop
 
 # Power
-TARGET_POWERHAL_MODE_EXT := $(COMMON_PATH)/power/power-mode.cpp
+TARGET_POWERHAL_MODE_EXT := $(DEVICE_PATH)/power/power-mode.cpp
 
 # Recovery
 BOARD_INCLUDE_DTB_IN_BOOTIMG := true
 BOARD_USES_RECOVERY_AS_BOOT := true
 TARGET_NO_RECOVERY := true
-TARGET_RECOVERY_FSTAB := $(COMMON_PATH)/rootdir/fstab.qcom
+TARGET_RECOVERY_FSTAB := $(DEVICE_PATH)/rootdir/fstab.qcom
 TARGET_USERIMAGES_USE_EXT4 := true
 TARGET_USERIMAGES_USE_F2FS := true
 TARGET_USES_MKE2FS := true
@@ -189,8 +202,8 @@ VENDOR_SECURITY_PATCH := 2021-10-01
 # Sepolicy
 include device/qcom/sepolicy_vndr/SEPolicy.mk
 include hardware/sony/sepolicy/qti/SEPolicy.mk
-BOARD_VENDOR_SEPOLICY_DIRS += $(COMMON_PATH)/sepolicy/vendor
-PRODUCT_PRIVATE_SEPOLICY_DIRS += $(COMMON_PATH)/sepolicy/private
+BOARD_VENDOR_SEPOLICY_DIRS += $(DEVICE_PATH)/sepolicy/vendor
+PRODUCT_PRIVATE_SEPOLICY_DIRS += $(DEVICE_PATH)/sepolicy/private
 
 # Verified Boot
 BOARD_AVB_ENABLE := true
@@ -211,4 +224,5 @@ WIFI_HIDL_FEATURE_DUAL_INTERFACE := true
 WIFI_HIDL_UNIFIED_SUPPLICANT_SERVICE_RC_ENTRY := true
 WPA_SUPPLICANT_VERSION := VER_0_8_X
 
--include vendor/sony/sm8150-common/BoardConfigVendor.mk
+-include vendor/sony/griffin/BoardConfigVendor.mk
+
